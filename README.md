@@ -16,3 +16,6 @@ Relief es una interfaz de consola que se encarga de crear copias de seguridad de
   - [x]  Info de versión en TOML
   - [x]  Loop principal
   - [x]  Header inicial
+
+## Dependencias
+  - [TOML](https://pypi.org/project/toml/)

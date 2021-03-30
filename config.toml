@@ -1,0 +1,5 @@
+[General]
+first-init = false
+
+[Steam]
+lib-path = "D:\\Programas\\Steam\\steamapps"

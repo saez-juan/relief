@@ -3,15 +3,31 @@
 
 import actions
 import info
+import config
+import platform
+import detector
+import colors
+from initialize import initialize
 from actions import relief_action
 import traceback
+from gcli import println
 
+PS1 = "[" + colors.paint ("Relief", "magenta") + "]> "
 EXIT_CMD = "exit"
 
 def main ():
+	global EXIT_CMD, PS1
+	if platform.system () != "Windows":
+		print ("\n    Relief solo está disponible para Windows\n")
+		return
+
 	#-> Preprocesamiento
 
+	config.initialize ()
+	detector.initialize ()
 	info.initialize ()
+
+	initialize ()
 
 	#-> Preprocesamiento
 
@@ -22,7 +38,7 @@ def main ():
 
 	try:
 		while True:
-			last_command = input ("[Relief]> ").lower ()
+			last_command = input (PS1).lower ()
 
 			if last_command == EXIT_CMD:
 				break
@@ -33,7 +49,8 @@ def main ():
 	except Exception as e:
 		traceback.print_exc ()
 	finally:
-		print ("\nSaliendo...")
+		print () #-> SLFE
+		println (colors.paint ("Saliendo...", "yellow"))
 		exit ()
 
 if __name__ == "__main__":
