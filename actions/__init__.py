@@ -6,7 +6,8 @@ from actions import \
     save_action, \
     clear_action
 
-import colors
+from utils.colors import paint
+from utils.gcli import println
 
 def exec_action (action):
     actions_dict = {
@@ -22,7 +23,7 @@ def exec_action (action):
     print () #-> SLFE
 
     if actions_dict.get (action) == None:
-        print ("    Acción " + colors.paint (action, "red") + " desconocida")
+        println ("Acción " + paint (action, "red") + " desconocida")
     else:
         actions_dict[action] ()
 

@@ -3,29 +3,27 @@ import os
 from utils.colors import paint
 from utils.gcli import println
 
-steam_config = None
+epic_config = None
 lib_path = None
 
-exclude_games = [
-	"Steamworks Common Redistributables"
-]
+exclude_games = []
 
 def initialize ():
-	global steam_config
-	steam_config = config.get ("Steam")
+	global epic_config
+	epic_config = config.get ("EpicGames")
 
 def get_all_games ():
-	global steam_config, lib_path
+	global epic_config, lib_path
 
-	if steam_config == None:
-		println (paint ("Detector de Steam no inicializado", "yellow"))
+	if epic_config == None:
+		println (paint ("Detector de Epic Games no inicializado", "yellow"))
 		return
 
-	lib_path = steam_config.get ("lib-path")
+	lib_path = epic_config.get ("lib-path")
 
 	if lib_path == None:
-		println (paint ("Librería de Steam no encontrada...", "yellow"))
-		return None
+		println (paint ("Librería de Epic Games no encontrada...", "yellow"))
+		return
 
 	manifest_files = __get_manifest_files ()
 	installed_games = __get_installed_games (manifest_files)
@@ -37,9 +35,9 @@ def __get_manifest_files ():
 	global lib_path
 	lib_files = os.listdir (lib_path)
 
-	acf_files = filter (lambda f: ".acf" in f, lib_files)
+	item_files = filter (lambda f: ".item" in f, lib_files)
 
-	return list (acf_files)
+	return list (item_files)
 
 def __get_installed_games (manifest_files):
 	global lib_path
@@ -51,7 +49,7 @@ def __get_installed_games (manifest_files):
 
 		with open (complete_route, "r") as file_stream:
 			for line in file_stream.readlines ():
-				if "\"name\"" in line:
+				if "\"DisplayName\"" in line:
 					splitted_line = line.split ("\"")
 					games.append (splitted_line[3])
 			

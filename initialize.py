@@ -1,7 +1,7 @@
-import config
+from file_drivers import config
 import os
-from colors import paint
-from gcli import println
+from utils.colors import paint
+from utils.gcli import println
 
 import detector
 

@@ -2,15 +2,14 @@
 #   SLFE: Salto de línea con fines estéticos
 
 import actions
-import info
-import config
+from file_drivers import info, config
 import platform
 import detector
-import colors
+from utils import colors
 from initialize import initialize
 from actions import relief_action
 import traceback
-from gcli import println
+from utils.gcli import println
 
 PS1 = "[" + colors.paint ("Relief", "magenta") + "]> "
 EXIT_CMD = "exit"

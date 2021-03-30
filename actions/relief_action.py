@@ -1,5 +1,5 @@
-import info
-import colors
+from file_drivers import info
+from utils import colors
 
 def run ():
     current_version = info.get ("version")
