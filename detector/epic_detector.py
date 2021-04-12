@@ -1,34 +1,70 @@
 from file_drivers import config
 import os
 from utils.colors import paint
-from utils.gcli import println
+from utils.gcli import println, print_item
 
-epic_config = None
+from detector.utils import get_mounted_disks, find_file
+
 lib_path = None
 
-exclude_games = []
+excluded_ids = []
+
+def start ():
+	global lib_path
+
+	lib_path = config.get ("Libraries.epic-lib")
 
 def initialize ():
-	global epic_config
-	epic_config = config.get ("EpicGames")
+	global lib_path
 
-def get_all_games ():
-	global epic_config, lib_path
+	println (paint ("Epic Games", "cyan"))
 
-	if epic_config == None:
-		println (paint ("Detector de Epic Games no inicializado", "yellow"))
-		return
+	epic_config = config.get ("Libraries.epic-path")
+	lib_path = ""
 
-	lib_path = epic_config.get ("lib-path")
+	print_item ("Obteniendo lista de discos montados")
+
+	mounted_disks = get_mounted_disks ()
+
+	key_file = "Launcher.manifest"
+
+	for disk_letter in mounted_disks:
+		print_item ("Buscando librería en disco " + disk_letter)
+		
+		search_result = find_file (disk_letter, key_file)
+		
+		if search_result != None:
+			lib_path = search_result
 
 	if lib_path == None:
-		println (paint ("Librería de Epic Games no encontrada...", "yellow"))
+		print_item ("No se encontró la librería", bullet_color="red")
+		return
+
+	print_item ("Formateando la ruta")
+
+	splitted_lib_path = lib_path.split(os.sep)
+	splitted_lib_path.pop ()
+	splitted_lib_path.append ("Manifests")
+	lib_path = os.path.join (os.sep.join (splitted_lib_path))
+
+	print_item ("Guardando ruta en caché")
+
+	config.update ("Libraries.epic-lib", lib_path)
+
+	print_item ("Inicialización exitosa", bullet_color="green")
+	print () #-> SLFE
+
+def get_games_list ():
+	global lib_path
+
+	if lib_path == None:
+		println (paint ("Detector de Epic Games no inicializado", "yellow"))
 		return
 
 	manifest_files = __get_manifest_files ()
 	installed_games = __get_installed_games (manifest_files)
 
-	return list (filter (lambda g: g not in exclude_games, installed_games))
+	return list (filter (lambda g: g not in excluded_ids, installed_games))
 
 
 def __get_manifest_files ():
@@ -47,12 +83,32 @@ def __get_installed_games (manifest_files):
 	for uri in manifest_files:
 		complete_route = os.path.join (lib_path, uri)
 
+		current_game = {}
+
 		with open (complete_route, "r") as file_stream:
 			for line in file_stream.readlines ():
+				if "\"CatalogItemId\"" in line:
+					splitted_line = line.split (":", 1)
+					raw_name = splitted_line[1]
+
+					appid = raw_name[2:len (raw_name) - 3] \
+						.replace ("\\", "")
+					
+					current_game["id"] = appid
+				
 				if "\"DisplayName\"" in line:
-					splitted_line = line.split ("\"")
-					games.append (splitted_line[3])
+					splitted_line = line.split (":", 1)
+					raw_name = splitted_line[1]
+
+					display_name = raw_name[2:len (raw_name) - 3] \
+						.replace ("\\", "") \
+						.replace (chr (174), "") \
+						.replace (chr (194), "")
+
+					current_game["name"] = display_name
 			
 			file_stream.close ()
+		
+		games.append (current_game)
 	
 	return games

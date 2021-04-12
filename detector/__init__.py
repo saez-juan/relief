@@ -3,8 +3,8 @@ from utils.gcli import print_item, println
 
 from detector import initialize_libs, steam_detector, epic_detector
 
-def initialize ():
-    steam_detector.initialize ()
+def start ():
+    steam_detector.start ()
     epic_detector.initialize ()
 
 

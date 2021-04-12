@@ -1,8 +1,9 @@
 from file_drivers import info
-from utils import colors
+from utils.colors import paint
 
 def run ():
     current_version = info.get ("version")
-    HEADER = colors.paint ("Relief", "magenta") + " " + current_version + "\n  By " + colors.paint ("Juan Saez", "yellow")
+
+    HEADER = paint ("Relief", "magenta") + " " + current_version + "\n  By " + paint ("Juan Saez", "yellow")
 
     print (HEADER)

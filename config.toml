@@ -1,8 +1,0 @@
-[General]
-first-init = false
-
-[Steam]
-lib-path = "D:\\Programas\\Steam\\steamapps"
-
-[EpicGames]
-lib-path = "C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests"

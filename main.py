@@ -1,12 +1,12 @@
 # Glosario:
 #   SLFE: Salto de línea con fines estéticos
 
+import os
 import actions
-from file_drivers import info, config
 import platform
 import detector
 from utils import colors
-from initialize import initialize
+import startup
 from actions import relief_action
 import traceback
 from utils.gcli import println
@@ -16,33 +16,34 @@ EXIT_CMD = "exit"
 
 def main ():
 	global EXIT_CMD, PS1
+
 	if platform.system () != "Windows":
-		print ("\n    Relief solo está disponible para Windows\n")
+		println ("Relief solo está disponible para Windows\n")
 		return
+	
+	os.system ("cls")
 
-	#-> Preprocesamiento
-
-	config.initialize ()
-	detector.initialize ()
-	info.initialize ()
-
-	initialize ()
-
-	#-> Preprocesamiento
-
+	startup.start ()
+	startup.initialization_process ()
+	
 	relief_action.run ()
 	print () #-> SLFE
 
 	last_command = ""
+	
+	while True:
+		last_command = input (PS1).lower ()
+		
+		if last_command == EXIT_CMD:
+			break
+		else:
+			actions.exec_action (last_command)
 
+	
+
+if __name__ == "__main__":
 	try:
-		while True:
-			last_command = input (PS1).lower ()
-
-			if last_command == EXIT_CMD:
-				break
-			else:
-				actions.exec_action (last_command)
+		main ()
 	except KeyboardInterrupt:
 		print () #-> SLFE
 	except Exception as e:
@@ -50,7 +51,5 @@ def main ():
 	finally:
 		print () #-> SLFE
 		println (colors.paint ("Saliendo...", "yellow"))
-		exit ()
-
-if __name__ == "__main__":
-	main ()
+		print () #-> SLFE
+		exit (0)

@@ -1,28 +1,40 @@
 import toml
+from utils.dicts import keychain_in_dict
 
-__parsed_file = False
-__info_dict = {}
+__current_execution_info = {
+    "parsed": False,
+    "info-dict": {}
+}
 
-def initialize ():
-    global __parsed_file, __info_dict
+__file_path = "file_drivers/version-info.toml"
 
-    with open ("version-info.toml", "r") as file_info:
+def start ():
+    global __current_execution_info, __file_path
+
+    with open (__file_path, "r") as file_info:
         raw_file_info = "\n".join(file_info.readlines ())
-        __parsed_file = True
-        __info_dict = toml.loads (raw_file_info)
+
+        __current_execution_info["parsed"] = True
+        __current_execution_info["info-dict"] = toml.loads (raw_file_info)
+
         file_info.close ()
 
-def get (key, debug=False):
-    global __parsed_file, __info_dict
+def get (keychain, debug=False):
+    global __current_execution_info
+
+    parsed    = __current_execution_info["parsed"]
+    info_dict = __current_execution_info["info-dict"]
+
+    expected_value = keychain_in_dict (keychain, info_dict)
     
-    if not __parsed_file:
+    if not parsed:
         if debug:
             print ("No se compiló el archivo de versión")
         return None
 
-    if __info_dict.get (key) == None:
+    if expected_value == None:
         if debug:
             print ("La info \"{}\" no existe", key)
         return None
 
-    return __info_dict.get (key)
+    return expected_value
