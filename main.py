@@ -9,16 +9,17 @@ from utils import colors
 import startup
 from actions import relief_action
 import traceback
-from utils.gcli import println
+from utils.gcli import println, RELIEF
 
-PS1 = "[" + colors.paint ("Relief", "magenta") + "]> "
+PS1 = "[" + RELIEF + "]> "
 EXIT_CMD = "exit"
 
 def main ():
 	global EXIT_CMD, PS1
 
 	if platform.system () != "Windows":
-		println ("Relief solo está disponible para Windows\n")
+		print () #-> SLFE
+		println (RELIEF + " solo está disponible para Windows")
 		return
 	
 	os.system ("cls")
@@ -38,8 +39,6 @@ def main ():
 			break
 		else:
 			actions.exec_action (last_command)
-
-	
 
 if __name__ == "__main__":
 	try:

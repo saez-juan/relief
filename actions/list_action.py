@@ -1,24 +1,28 @@
+from jsonc_parser.parser import JsoncParser
+from file_drivers import cache_db
+
 from utils.colors import paint
 from utils.gcli import println, print_item
 
 from detector import steam_detector, epic_detector
 
 def run ():
-    steam_games = steam_detector.get_games_list ()
-    epic_games = epic_detector.get_games_list ()
+	is_cached_info = cache_db.get ("api") != None
 
-    print_games ("Steam", steam_games)
+	if not is_cached_info:
+		println ("No hay datos recopilados.")
+		println ("Probá ejecutar: {}".format (paint ("update", "yellow")))
+		return None
 
-    print () #-> SLFE
-    
-    print_games ("Epic Games", epic_games)
+	print_games ("Steam", "steam")
 
+def print_games (header, platform):
+	games_info = cache_db.get ("api." + platform)
 
-def print_games (platform, games):
-    if games == None:
-        return
-    
-    println (paint (platform, "cyan"))
+	if games_info == None:
+		return
+	
+	println (paint (header, "cyan"))
 
-    for game in games:
-        print_item (game["name"])
+	for game in games_info:
+		print_item (game["name"])

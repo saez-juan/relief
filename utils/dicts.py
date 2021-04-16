@@ -5,8 +5,11 @@ def keychain_in_dict (keychain, dictionary):
 	keys = parse_keychain (keychain)
 
 	for k in keys:
+		if current_branch == None or not isinstance (current_branch, dict):
+			return None
+		
 		expected_branch = current_branch.get (k)
-
+		
 		if expected_branch != None:
 			current_branch = expected_branch
 		else:
@@ -31,7 +34,7 @@ def get_merge_dict (keychain, value):
 def parse_keychain (keychain):
 	return keychain.split (".")
 
-def dict_merge(dct, merge_dct):
+def dict_merge (dct, merge_dct):
 	for k, v in merge_dct.items ():
 		if (k in dct and isinstance(dct[k], dict)
 				and isinstance(merge_dct[k], collections.Mapping)):

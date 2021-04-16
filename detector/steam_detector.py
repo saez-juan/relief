@@ -1,7 +1,10 @@
-from file_drivers import config
+from file_drivers import config, cache_db
 import os
 from utils.colors import paint
 from utils.gcli import println, print_item
+
+import requests
+import json
 
 from detector.utils import get_mounted_disks, find_file
 
@@ -11,7 +14,6 @@ excluded_ids = ["228980"]
 
 def start ():
 	global lib_path
-	
 	lib_path = config.get ("Libraries.steam-lib")
 
 def initialize ():
@@ -50,7 +52,7 @@ def initialize ():
 	print_item ("Inicialización exitosa", bullet_color="green")
 	print () #-> SLFE
 
-def get_games_list ():
+def get_games_ids ():
 	global lib_path
 
 	if lib_path == None:
@@ -61,10 +63,18 @@ def get_games_list ():
 		println (paint ("Librería de Steam no encontrada...", "yellow"))
 		return None
 
-	manifest_files = __get_manifest_files ()
-	installed_games = __get_installed_games (manifest_files)
+	cached_games = cache_db.get ("installed.steam")
+	installed_games = None
 
-	return list (filter (lambda g: g["id"] not in excluded_ids, installed_games))
+	if cached_games == None:
+		manifest_files = __get_manifest_files ()
+		installed_games = __get_installed_games (manifest_files)
+
+		cache_db.update ("installed.steam", installed_games)
+	else:
+		installed_games = list (map (lambda g: g, cached_games))
+
+	return list (filter (lambda g: g not in excluded_ids, installed_games))
 
 def __get_manifest_files ():
 	global lib_path
@@ -77,7 +87,7 @@ def __get_manifest_files ():
 def __get_installed_games (manifest_files):
 	global lib_path
 
-	games = []
+	games_ids = []
 
 	for uri in manifest_files:
 		complete_route = os.path.join (lib_path, uri)
@@ -88,14 +98,8 @@ def __get_installed_games (manifest_files):
 			for line in file_stream.readlines ():
 				if "\"appid\"" in line:
 					splitted_line = line.split ("\"")
-					current_game["id"] = splitted_line[3]
-
-				if "\"name\"" in line:
-					splitted_line = line.split ("\"")
-					current_game["name"] = splitted_line[3]
-			
-			games.append (current_game)
+					games_ids.append (splitted_line[3])
 			
 			file_stream.close ()
-	
-	return games
+
+	return games_ids

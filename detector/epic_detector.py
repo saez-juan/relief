@@ -1,4 +1,4 @@
-from file_drivers import config
+from file_drivers import config, cache_db
 import os
 from utils.colors import paint
 from utils.gcli import println, print_item
@@ -54,7 +54,7 @@ def initialize ():
 	print_item ("Inicialización exitosa", bullet_color="green")
 	print () #-> SLFE
 
-def get_games_list ():
+def get_games_ids ():
 	global lib_path
 
 	if lib_path == None:
@@ -62,7 +62,17 @@ def get_games_list ():
 		return
 
 	manifest_files = __get_manifest_files ()
-	installed_games = __get_installed_games (manifest_files)
+
+	cached_games = cache_db.get ("installed.epic")
+	installed_games = None
+
+	if cached_games == None:
+		manifest_files = __get_manifest_files ()
+		installed_games = __get_installed_games (manifest_files)
+
+		cache_db.update ("installed.epic", installed_games)
+	else:
+		installed_games = list (map (lambda g: g, cached_games))
 
 	return list (filter (lambda g: g not in excluded_ids, installed_games))
 
@@ -78,12 +88,10 @@ def __get_manifest_files ():
 def __get_installed_games (manifest_files):
 	global lib_path
 
-	games = []
+	games_ids = []
 
 	for uri in manifest_files:
 		complete_route = os.path.join (lib_path, uri)
-
-		current_game = {}
 
 		with open (complete_route, "r") as file_stream:
 			for line in file_stream.readlines ():
@@ -94,21 +102,6 @@ def __get_installed_games (manifest_files):
 					appid = raw_name[2:len (raw_name) - 3] \
 						.replace ("\\", "")
 					
-					current_game["id"] = appid
-				
-				if "\"DisplayName\"" in line:
-					splitted_line = line.split (":", 1)
-					raw_name = splitted_line[1]
-
-					display_name = raw_name[2:len (raw_name) - 3] \
-						.replace ("\\", "") \
-						.replace (chr (174), "") \
-						.replace (chr (194), "")
-
-					current_game["name"] = display_name
-			
-			file_stream.close ()
-		
-		games.append (current_game)
+					games_ids.append (appid)
 	
-	return games
+	return games_ids
