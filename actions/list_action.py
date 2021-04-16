@@ -1,4 +1,3 @@
-from jsonc_parser.parser import JsoncParser
 from file_drivers import cache_db
 
 from utils.colors import paint

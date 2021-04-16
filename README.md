@@ -8,4 +8,4 @@ _Versión 0.2_
   - Windows 10
 
 ## Dependencias
-  - [TOML](https://pypi.org/project/toml/)
+  - [PyYAML](https://pypi.org/project/PyYAML/)
