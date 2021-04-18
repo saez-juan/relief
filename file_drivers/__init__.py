@@ -9,6 +9,16 @@ config = FileDriver (
 			"steam-lib": "?",
 			"epic-lib": "?",
 			"riot-lib": "?"
+		},
+		"Search": {
+			"steam-key-file": {
+				"file": "libraryfolders.vdf",
+				"path": "?"
+			},
+			"epic-key-file": {
+				"file": "Launcher.manifest",
+				"path": "?"
+			}
 		}
 	}
 )

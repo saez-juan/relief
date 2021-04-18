@@ -3,6 +3,10 @@ import os
 from utils.colors import paint
 from utils.gcli import println, print_item
 
+import requests
+import json
+import env
+
 from detector.utils import get_mounted_disks, find_file
 
 lib_path = None
@@ -11,7 +15,6 @@ excluded_ids = []
 
 def start ():
 	global lib_path
-
 	lib_path = config.get ("Libraries.epic-lib")
 
 def initialize ():
@@ -19,31 +22,17 @@ def initialize ():
 
 	println (paint ("Epic Games", "cyan"))
 
-	epic_config = config.get ("Libraries.epic-path")
-	lib_path = ""
+	print_item ("Buscando ruta")
 
-	print_item ("Obteniendo lista de discos montados")
-
-	mounted_disks = get_mounted_disks ()
-
-	key_file = "Launcher.manifest"
-
-	for disk_letter in mounted_disks:
-		print_item ("Buscando librería en disco " + disk_letter)
-		
-		search_result = find_file (disk_letter, key_file)
-		
-		if search_result != None:
-			lib_path = search_result
+	lib_path = config.get ("Search.epic-key-file.path")
 
 	if lib_path == None:
-		print_item ("No se encontró la librería", bullet_color="red")
-		return
+		print_item ("Instalación de Epic Games no encontrada", bullet_color="red")
+		return None
 
 	print_item ("Formateando la ruta")
 
 	splitted_lib_path = lib_path.split(os.sep)
-	splitted_lib_path.pop ()
 	splitted_lib_path.append ("Manifests")
 	lib_path = os.path.join (os.sep.join (splitted_lib_path))
 
@@ -51,8 +40,11 @@ def initialize ():
 
 	config.update ("Libraries.epic-lib", lib_path)
 
+	print_item ("Obteniendo IDs de juegos instalados")
+
+	update_games_cache ()
+
 	print_item ("Inicialización exitosa", bullet_color="green")
-	print () #-> SLFE
 
 def get_games_ids ():
 	global lib_path
@@ -76,6 +68,23 @@ def get_games_ids ():
 
 	return list (filter (lambda g: g not in excluded_ids, installed_games))
 
+def update_games_cache ():
+	cache_db.update ("installed.epic", None)
+	epic_ids = get_games_ids ()
+	cache_db.update ("installed.epic", epic_ids)
+
+def __fetch_api_info ():
+	cached_ids = cache_db.get ("installed.epic")
+
+	if cached_ids == None:
+		return None
+	
+	api_response = requests.post (env.API_URL, {
+		platform: cached_ids
+	})
+
+	games_info = json.loads (api_response.text)
+	cache_db.update ("api.epic", games_info.get ("epic"))
 
 def __get_manifest_files ():
 	global lib_path

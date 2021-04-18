@@ -2,12 +2,10 @@
 #   SLFE: Salto de línea con fines estéticos
 
 import os
-import actions
 import platform
-import detector
 from utils import colors
 import startup
-from actions import relief_action
+from actions import relief_action, exec_action
 import traceback
 from utils.gcli import println, RELIEF
 
@@ -38,7 +36,7 @@ def main ():
 		if last_command == EXIT_CMD:
 			break
 		else:
-			actions.exec_action (last_command)
+			exec_action (last_command)
 
 if __name__ == "__main__":
 	try:

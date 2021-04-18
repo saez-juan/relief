@@ -2,13 +2,17 @@ from file_drivers import config
 import os
 from utils.colors import paint
 from utils.gcli import println, RELIEF
+import search
 
 from detector import steam_detector, epic_detector
 
 # --
 
 def initialize ():
+	search.search_all ()
+	print () #-> SLFE
 	steam_detector.initialize ()
+	print () #-> SLFE
 	epic_detector.initialize ()
 
 	os.system ("cls")

@@ -5,6 +5,7 @@ from utils.gcli import println, print_item
 
 import requests
 import json
+import env
 
 from detector.utils import get_mounted_disks, find_file
 
@@ -21,36 +22,23 @@ def initialize ():
 
 	println (paint ("Steam", "cyan"))
 
-	print_item ("Obteniendo lista de discos montados")
+	print_item ("Buscando ruta")
 
-	mounted_disks = get_mounted_disks ()
-
-	key_file = "libraryfolders.vdf"
-
-	for disk_letter in mounted_disks:
-		print_item ("Buscando librería en disco " + disk_letter)
-		
-		search_result = find_file (disk_letter, key_file)
-		
-		if search_result != None:
-			lib_path = search_result
+	lib_path = config.get ("Search.steam-key-file.path")
 
 	if lib_path == None:
-		print_item ("No se encontró la librería", bullet_color="red")
-		return
-
-	print_item ("Formateando la ruta")
-
-	splitted_lib_path = lib_path.split(os.sep)
-	splitted_lib_path.pop ()
-	lib_path = os.path.join (os.sep.join (splitted_lib_path))
+		print_item ("Instalación de Steam no encontrada", bullet_color="red")
+		return None
 
 	print_item ("Guardando ruta en caché")
 
 	config.update ("Libraries.steam-lib", lib_path)
 
+	print_item ("Obteniendo IDs de juegos instalados")
+
+	update_games_cache ()
+
 	print_item ("Inicialización exitosa", bullet_color="green")
-	print () #-> SLFE
 
 def get_games_ids ():
 	global lib_path
@@ -75,6 +63,26 @@ def get_games_ids ():
 		installed_games = list (map (lambda g: g, cached_games))
 
 	return list (filter (lambda g: g not in excluded_ids, installed_games))
+
+def update_games_cache ():
+	cache_db.update ("installed.steam", None)
+	steam_ids = get_games_ids ()	
+	cache_db.update ("installed.steam", steam_ids)
+
+	__fetch_api_info ()
+
+def __fetch_api_info ():
+	cached_ids = cache_db.get ("installed.steam")
+
+	if cached_ids == None:
+		return None
+	
+	api_response = requests.post (env.API_URL, {
+		"steam": cached_ids
+	})
+
+	games_info = json.loads (api_response.text)
+	cache_db.update ("api.steam", games_info.get ("steam"))
 
 def __get_manifest_files ():
 	global lib_path
