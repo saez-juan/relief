@@ -73,6 +73,8 @@ def update_games_cache ():
 	epic_ids = get_games_ids ()
 	cache_db.update ("installed.epic", epic_ids)
 
+	__fetch_api_info ()
+
 def __fetch_api_info ():
 	cached_ids = cache_db.get ("installed.epic")
 
@@ -80,7 +82,7 @@ def __fetch_api_info ():
 		return None
 	
 	api_response = requests.post (env.API_URL, {
-		platform: cached_ids
+		"epic": cached_ids
 	})
 
 	games_info = json.loads (api_response.text)
