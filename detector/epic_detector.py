@@ -5,7 +5,6 @@ from utils.gcli import println, print_item
 
 import requests
 import json
-import env
 
 from detector.utils import get_mounted_disks, find_file
 
@@ -80,8 +79,10 @@ def __fetch_api_info ():
 
 	if cached_ids == None:
 		return None
-	
-	api_response = requests.post (env.API_URL, {
+
+	api_url = config.get ("General.api-url")
+
+	api_response = requests.post (api_url, {
 		"epic": cached_ids
 	})
 

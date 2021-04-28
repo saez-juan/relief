@@ -1,5 +1,6 @@
 from file_drivers import config
 import os
+from save_system import git
 from utils.colors import paint
 from utils.gcli import println, RELIEF
 import search
@@ -14,6 +15,8 @@ def initialize ():
 	steam_detector.initialize ()
 	print () #-> SLFE
 	epic_detector.initialize ()
+	print () #-> SLFE
+	git.initialize ()
 
 	os.system ("cls")
 

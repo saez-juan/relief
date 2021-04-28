@@ -1,14 +1,19 @@
+from os import path
 from file_drivers.file_driver import FileDriver
+
+
 
 config = FileDriver (
 	"file_drivers/config.yaml", {
 		"General": {
-			"first-init": True
+			"first-init": True,
+			"version": "v0.2",
+			"save-path": path.expanduser ("~/AppData/LocalLow/Relief"),
+			"api-url": "https://relief-server.herokuapp.com/"
 		},
 		"Libraries": {
 			"steam-lib": "?",
-			"epic-lib": "?",
-			"riot-lib": "?"
+			"epic-lib": "?"
 		},
 		"Search": {
 			"steam-key-file": {
@@ -19,6 +24,10 @@ config = FileDriver (
 				"file": "Launcher.manifest",
 				"path": "?"
 			}
+		},
+		"Git": {
+			"repository-url": "?",
+			"protocol": "https"
 		}
 	}
 )
